@@ -4,23 +4,7 @@ import { BsCircleFill, BsFillCheckCircleFill, BsFillTrashFill } from 'react-icon
 
 function Home() {
   //Static JSON data
-  const [todos, setTodos] = useState([
-    {
-      _id: '1',
-      task: 'Learn React',
-      done: false,
-    },
-    {
-      _id: '2',
-      task: 'Build ToDo App',
-      done: true,
-    },
-    {
-      _id: '3',
-      task: 'Practice JavaScript',
-      done: false,
-    },
-  ]);
+  const [todos, setTodos] = useState([]);
 
   // 🔹 Toggle done/undone
   const handleEdit = (id) => {
