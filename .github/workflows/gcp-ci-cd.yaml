@@ -49,6 +49,20 @@
 
 
 
+name: Deploy React App to GKE
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: propane-fusion-480609-m7
+  REGION: us-central1
+  CLUSTER_NAME: react-cluster
+  REPOSITORY: react-repo
+  IMAGE_NAME: react-todo-app
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
