@@ -49,50 +49,39 @@
 
 
 
-name: Deploy React App to GKE
-
-on:
-  push:
-    branches:
-      - main
-
-env:
-  PROJECT_ID: propane-fusion-480609-m7
-  REGION: us-central1
-  CLUSTER_NAME: react-cluster
-  REPOSITORY: react-repo
-  IMAGE_NAME: react-todo-app
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Authenticate to GCP
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    - name: Setup gcloud
-      uses: google-github-actions/setup-gcloud@v2
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
 
-    - name: Configure Docker
-      run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin --quiet
 
-    - name: Build image
-      run: docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest .
+      - name: Configure Docker
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 
-    - name: Push image
-      run: docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
+      - name: Build Docker image
+        run: docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest .
 
-    - name: Get GKE credentials
-      run: |
-        gcloud container clusters get-credentials $CLUSTER_NAME \
-          --zone $REGION \
-          --project $PROJECT_ID
+      - name: Push Docker image
+        run: docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
 
-    - name: Deploy to GKE
-      run: kubectl apply -f k8s/
+      - name: Get GKE credentials
+        run: |
+          gcloud container clusters get-credentials $CLUSTER_NAME \
+            --zone $REGION \
+            --project $PROJECT_ID
+
+      - name: Deploy to GKE
+        run: kubectl apply -f k8s/
