@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-todo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-todo
+  template:
+    metadata:
+      labels:
+        app: react-todo
+    spec:
+      containers:
+      - name: react-todo
+        image: us-central1-docker.pkg.dev/propane-fusion-480609-m7/react-repo/react-todo-app:latest
+        ports:
+        - containerPort: 80
+
+
+
