@@ -1,55 +1,4 @@
-# name: GCP Cloud Run CI/CD
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# env:
-#   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-#   REGION: ${{ secrets.GCP_REGION }}
-#   SERVICE: react-todo-app
-#   REPO: react-repo
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v4
-
-#       - name: Authenticate to GCP
-#         uses: google-github-actions/auth@v2
-#         with:
-#           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-#       - name: Setup gcloud
-#         uses: google-github-actions/setup-gcloud@v2
-
-#       - name: Configure Docker
-#         run: gcloud auth configure-docker $REGION-docker.pkg.dev
-
-#       - name: Build Docker Image
-#         run: |
-#           docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/react-todo-app:latest .
-
-#       - name: Push Docker Image
-#         run: |
-#           docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/react-todo-app:latest
-
-#       - name: Deploy to Cloud Run
-#         run: |
-#           gcloud run deploy $SERVICE \
-#             --image $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/react-todo-app:latest \
-#             --platform managed \
-#             --region $REGION \
-#             --allow-unauthenticated \
-#             --port 8080
-
-
-
-name: Deploy React App to GKE
+name: GCP Cloud Run CI/CD
 
 on:
   push:
@@ -57,17 +6,17 @@ on:
       - main
 
 env:
-  PROJECT_ID: propane-fusion-480609-m7
-  REGION: us-central1
-  CLUSTER_NAME: react-cluster
-  REPOSITORY: react-repo
-  IMAGE_NAME: react-todo-app
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
+  SERVICE: react-todo-app
+  REPO: react-repo
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Authenticate to GCP
@@ -78,24 +27,75 @@ jobs:
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Install gke-gcloud-auth-plugin
-        run: |
-          gcloud components install gke-gcloud-auth-plugin --quiet
-
       - name: Configure Docker
-        run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev
 
-      - name: Build Docker image
-        run: docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest .
-
-      - name: Push Docker image
-        run: docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
-
-      - name: Get GKE credentials
+      - name: Build Docker Image
         run: |
-          gcloud container clusters get-credentials $CLUSTER_NAME \
-            --zone $REGION \
-            --project $PROJECT_ID
+          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/react-todo-app:latest .
 
-      - name: Deploy to GKE
-        run: kubectl apply -f k8s/
+      - name: Push Docker Image
+        run: |
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/react-todo-app:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy $SERVICE \
+            --image $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/react-todo-app:latest \
+            --platform managed \
+            --region $REGION \
+            --allow-unauthenticated \
+            --port 8080
+
+
+
+# name: Deploy React App to GKE
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# env:
+#   PROJECT_ID: propane-fusion-480609-m7
+#   REGION: us-central1
+#   CLUSTER_NAME: react-cluster
+#   REPOSITORY: react-repo
+#   IMAGE_NAME: react-todo-app
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Authenticate to GCP
+#         uses: google-github-actions/auth@v2
+#         with:
+#           credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+#       - name: Setup gcloud
+#         uses: google-github-actions/setup-gcloud@v2
+
+#       - name: Install gke-gcloud-auth-plugin
+#         run: |
+#           gcloud components install gke-gcloud-auth-plugin --quiet
+
+#       - name: Configure Docker
+#         run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+
+#       - name: Build Docker image
+#         run: docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest .
+
+#       - name: Push Docker image
+#         run: docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$IMAGE_NAME:latest
+
+#       - name: Get GKE credentials
+#         run: |
+#           gcloud container clusters get-credentials $CLUSTER_NAME \
+#             --zone $REGION \
+#             --project $PROJECT_ID
+
+#       - name: Deploy to GKE
+#         run: kubectl apply -f k8s/
